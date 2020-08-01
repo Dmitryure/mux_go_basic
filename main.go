@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/gorilla/handlers"
+
 	"github.com/gorilla/mux"
 )
 
@@ -24,5 +26,14 @@ func main() {
 	router.HandleFunc("/author/{id}", AuthorByIdEndpoint).Methods("GET")
 	router.HandleFunc("/author/{id}/delete", DeleteAuthor).Methods("GET")
 	router.HandleFunc("/author/{id}", ChangeAuthor).Methods("PUT")
-	http.ListenAndServe(":3000", router)
+	methods := handlers.AllowedMethods([]string{
+		"GET", "POST", "PUT", "DELETE",
+	})
+	headers := handlers.AllowedHeaders([]string{
+		"Content-Type",
+	})
+	origins := handlers.AllowedOrigins([]string{
+		"*",
+	})
+	http.ListenAndServe(":3000", handlers.CORS(headers, methods, origins)(router))
 }
